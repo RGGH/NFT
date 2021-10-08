@@ -1,0 +1,22 @@
+{
+  // Editor settings
+  "files.autoSave": "onFocusChange",
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  // Windows only settings
+  "terminal.integrated.shell.windows": "C://WINDOWS//System32//cmd.exe",
+  // Python Linting settings
+  "python.linting.enabled": true,
+  "python.linting.lintOnSave": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.mypyEnabled": true,
+  "python.formatting.provider": "autopep8",
+  // Python Execution settings
+  "python.languageServer": "Pylance",
+  "python.showStartPage": false,
+  // Python Docstring settings
+  "autoDocstring.docstringFormat": "google",
+  "autoDocstring.generateDocstringOnEnter": true,
+  "autoDocstring.quoteStyle": "'''"
+}
