@@ -1,29 +1,38 @@
 """
-Makes NFT Style image
-ready for another image to be merged with it
-and adds text
+Make NFT Style images
+Based on 1 initial image
 """
+
+import os
 import random
 import svgwrite
 import svgutils.transform as st
-from pathlib import Path
 
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 
+from word_grab import two_word_name
+
+# Constants
+PATH = 'output'
+IMG_H = 400
+IMG_W = 400
+SRC_IMG = "pi_400.svg"
+NUM_IMAGES = 10
+TWNAME = (two_word_name())
 
 class Dwg:
 
-    """create class for rectangles"""
+    """create class for a clear svg of rectangles"""
 
-    def __init__(self, height=10, width=10, fill="rgb(255,255,44)"):
+    def __init__(self, sqheight=10, sqwidth=10, fill="rgb(135,125,24)"):
 
-        self.width = height
-        self.height = width
+        self.width = sqwidth
+        self.height = sqheight
 
         self.dwg = svgwrite.Drawing(
             "test.svg",
-            size=(400, 400),
+            size=(IMG_H, IMG_W),
             profile="tiny",
             stroke_width=0.5,
             stroke="black",
@@ -31,11 +40,12 @@ class Dwg:
             fill=fill,
         )
 
-    def draw_rectangle(self):
+    def draw_rectangles_tl(self):
+        '''Create rectangles in top left'''
 
         for x in range(0, self.width):
             for y in range(0, self.height):
-                pos_mod_x = (random.random() - 0.5) * (x + (y * self.width))
+                pos_mod_x = (random.random() - 0.5) * (x + (x * self.width))
                 pos_mod_y = (random.random() - 0.5) * (x + (y * self.height))
                 self.dwg.add(
                     self.dwg.rect(
@@ -44,15 +54,29 @@ class Dwg:
                     )
                 )
 
+    def draw_rectangles_br(self):
+        '''Create rectangles in bottom rightt'''
+
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                pos_mod_x = (random.random() - 0.5) * (x + (x * self.width))
+                pos_mod_y = (random.random() - 0.5) * (x + (y * self.height))
+                self.dwg.add(
+                    self.dwg.rect(
+                        (IMG_W - x * 10 + pos_mod_x, IMG_H - y * 10 + pos_mod_y),
+                        (self.width, self.height)
+                    )
+                )
+
     def draw_text(self):
 
         self.dwg.add(
             self.dwg.text(
-                "Dr Pi",
-                insert=(55, 125),
+                TWNAME,
+                insert=(70, 325),
                 stroke="none",
-                fill="#900",
-                font_size="90px",
+                fill="#290",
+                font_size="30px",
                 font_weight="bold",
                 font_family="Arial",
             )
@@ -61,42 +85,52 @@ class Dwg:
     def save_as(self, filename):
         self.dwg.saveas(filename)
 
-
 # main
+
+
 if __name__ == "__main__":
 
-    path = Path("source_images/pi_400.svg")
-    assert path.is_file(), "pi_400 missing"
+    os.chdir(PATH)
 
-    d1 = Dwg()
-    d1.draw_rectangle()
-    d1.save_as("first.svg")
+    for i in range(1, NUM_IMAGES):
 
-    d2 = Dwg(height=15, fill="rgb(255,255,214)")
-    d2.draw_rectangle()
-    d2.save_as("second.svg")
+        r1, r2, r3 = random.randint(1, 255), random.randint(
+            1, 255), random.randint(1, 255)
 
-    d3 = Dwg(width=15, fill="rgb(255,85,214)")
-    d3.draw_rectangle()
-    d3.draw_text()  # Add ome text
-    d3.save_as("third.svg")
+        d1 = Dwg()
+        d1.draw_rectangles_tl()
+        d1.save_as("first.svg")
 
-    template = st.fromfile("source_images/pi_400.svg")
-    second_svg = st.fromfile("second.svg")
-    third_svg = st.fromfile("third.svg")
+        d2 = Dwg(sqwidth=15, fill=f"rgb({r2},{r1},{r3})")
+        d2.draw_rectangles_tl()
+        d2.save_as("second.svg")
 
-    template.append(second_svg)
-    template.append(third_svg)
+        d3 = Dwg(sqwidth=15, fill=f"rgb({r1},{r2},{r3})")
+        d3.draw_rectangles_br()
+        d3.draw_text()  # Add some text
+        d3.save_as("third.svg")
 
-    # save merged file
-    template.save("merged.svg")
+        template = st.fromfile("pi_400.svg")
+        first_svg = st.fromfile("first.svg")
+        second_svg = st.fromfile("second.svg")
+        third_svg = st.fromfile("third.svg")
 
-    # save source SVG files
-    drawing = svg2rlg("first.svg")
-    renderPM.drawToFile(drawing, "source_images/first.png", fmt="PNG")
+        template.append(first_svg)
+        template.append(second_svg)
+        template.append(third_svg)
 
-    drawing = svg2rlg("second.svg")
-    renderPM.drawToFile(drawing, "source_images/second.png", fmt="PNG")
+        # save merged file
+        template.save(f"merged{i}.svg")
+        drawing = svg2rlg(f"merged{i}.svg")
+        renderPM.drawToFile(drawing, f"merged{i}.png", fmt="PNG")
 
-    drawing = svg2rlg("third.svg")
-    renderPM.drawToFile(drawing, "source_images/third.png", fmt="PNG")
+
+    # # # save source SVG files
+    # drawing = svg2rlg("first.svg")
+    # renderPM.drawToFile(drawing, "first.png", fmt="PNG")
+
+    # drawing = svg2rlg("second.svg")
+    # renderPM.drawToFile(drawing, "second.png", fmt="PNG")
+
+    # drawing = svg2rlg("third.svg")
+    # renderPM.drawToFile(drawing, "third.png", fmt="PNG")
